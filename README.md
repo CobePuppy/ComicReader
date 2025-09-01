@@ -1,5 +1,5 @@
 # ComicReader
-
+(正在制作中，目前正在搭建后端逻辑)
 一个功能强大的漫画阅读器，支持本地和在线漫画阅读、下载管理等功能。
 
 ## 功能特点
@@ -62,7 +62,7 @@
 
 1. **克隆代码**
    ```bash
-   git clone https://github.com/your-username/ComicReader.git
+   git clone https://github.com/CobePuppy/ComicReader.git
    cd ComicReader
    ```
 
@@ -204,9 +204,9 @@ ComicReader/
 
 ## 联系方式
 
-- 项目主页: https://github.com/your-username/ComicReader
-- 问题反馈: https://github.com/your-username/ComicReader/issues
-- 邮箱: your-email@example.com
+- 项目主页: https://github.com/CobePuppy/ComicReader
+- 问题反馈: https://github.com/CobePuppy/ComicReader/issues
+- 邮箱: 2026744219@qq.com
 
 ## 致谢
 

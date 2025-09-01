@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>icons/app.png</file>
+        <file>icons/open.png</file>
+        <file>icons/download.png</file>
+        <file>icons/settings.png</file>
+        <file>icons/about.png</file>
+        <file>icons/back.png</file>
+        <file>icons/forward.png</file>
+        <file>icons/refresh.png</file>
+        <file>icons/home.png</file>
+        <file>icons/zoom_in.png</file>
+        <file>icons/zoom_out.png</file>
+        <file>icons/fit_width.png</file>
+        <file>icons/fit_height.png</file>
+        <file>icons/fullscreen.png</file>
+    </qresource>
+    <qresource prefix="/styles">
+        <file>styles/default.qss</file>
+        <file>styles/dark.qss</file>
+        <file>styles/light.qss</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,21 @@
+{
+    "files.associations": {
+        "*.h": "cpp",
+        "*.cpp": "cpp",
+        "*.pro": "makefile",
+        "*.qrc": "xml"
+    },
+    "C_Cpp.default.configurationProvider": "ms-vscode.cpptools",
+    "C_Cpp.default.intelliSenseMode": "windows-gcc-x64",
+    "C_Cpp.default.compilerPath": "D:/Qt/Tools/mingw1310_64/bin/g++.exe",
+    "C_Cpp.default.cppStandard": "c++17",
+    "C_Cpp.default.includePath": [
+        "${workspaceFolder}/**",
+        "${workspaceFolder}/include",
+        "D:/Qt/6.9.1/mingw_64/include/**"
+    ],
+    "terminal.integrated.env.windows": {
+        "PATH": "D:/Qt/Tools/mingw1310_64/bin;D:/Qt/6.9.1/mingw_64/bin;${env:PATH}"
+    },
+    "qt.qmake": "D:/Qt/6.9.1/mingw_64/bin/qmake.exe"
+}

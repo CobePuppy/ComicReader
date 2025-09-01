@@ -1,0 +1,90 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "qmake",
+            "type": "shell",
+            "command": "qmake",
+            "args": ["ComicReader.pro"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "options": {
+                "env": {
+                    "PATH": "D:/Qt/Tools/mingw1310_64/bin;D:/Qt/6.9.1/mingw_64/bin;${env:PATH}"
+                }
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "make",
+            "type": "shell",
+            "command": "mingw32-make",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "options": {
+                "env": {
+                    "PATH": "D:/Qt/Tools/mingw1310_64/bin;D:/Qt/6.9.1/mingw_64/bin;${env:PATH}"
+                }
+            },
+            "dependsOn": "qmake",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "mingw32-make",
+            "args": ["clean"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "options": {
+                "env": {
+                    "PATH": "D:/Qt/Tools/mingw1310_64/bin;D:/Qt/6.9.1/mingw_64/bin;${env:PATH}"
+                }
+            }
+        },
+        {
+            "label": "Build ComicReader",
+            "type": "shell",
+            "command": "qmake",
+            "args": ["ComicReader.pro", "&&", "mingw32-make"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "options": {
+                "env": {
+                    "PATH": "D:/Qt/Tools/mingw1310_64/bin;D:/Qt/6.9.1/mingw_64/bin;${env:PATH}"
+                }
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}

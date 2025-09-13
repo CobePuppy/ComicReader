@@ -1,0 +1,18 @@
+# 工具栏图标占位符
+# 实际使用时需要替换为24x24像素的PNG图标文件
+
+# 建议的图标样式：
+# - open.png: 文件夹打开图标
+# - close.png: X关闭图标  
+# - prev_page.png: 左箭头图标
+# - next_page.png: 右箭头图标
+# - zoom_in.png: 放大镜+图标
+# - zoom_out.png: 放大镜-图标
+# - zoom_fit.png: 适合窗口图标
+# - fullscreen.png: 全屏/最大化图标
+# - settings.png: 齿轮设置图标
+
+# 设计要求：
+# - 使用单色线条风格
+# - 支持浅色和深色主题
+# - 线条粗细保持一致

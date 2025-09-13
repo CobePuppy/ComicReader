@@ -11,6 +11,8 @@
 #include <QSlider>
 #include <QSpinBox>
 
+class ComicParser;
+
 class ReaderWidget : public QWidget
 {
     Q_OBJECT
@@ -56,10 +58,11 @@ private:
     QPushButton *resetZoomButton;
     
     // 数据
-    QStringList pages;
+    ComicParser *comicParser;
     int currentPage;
     double zoomFactor;
     QPixmap currentPixmap;
+    QPixmap originalPixmap;
 };
 
 #endif // READERWIDGET_H

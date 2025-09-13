@@ -1,0 +1,43 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/icons">
+        <!-- 应用程序图标 -->
+        <file alias="app/icon_16">app/icon_16.png</file>
+        <file alias="app/icon_32">app/icon_32.png</file>
+        <file alias="app/icon_48">app/icon_48.png</file>
+        <file alias="app/icon_64">app/icon_64.png</file>
+        <file alias="app/icon_128">app/icon_128.png</file>
+        <file alias="app/icon_256">app/icon_256.png</file>
+        
+        <!-- 工具栏图标 -->
+        <file alias="toolbar/open">toolbar/open.png</file>
+        <file alias="toolbar/close">toolbar/close.png</file>
+        <file alias="toolbar/prev_page">toolbar/prev_page.png</file>
+        <file alias="toolbar/next_page">toolbar/next_page.png</file>
+        <file alias="toolbar/zoom_in">toolbar/zoom_in.png</file>
+        <file alias="toolbar/zoom_out">toolbar/zoom_out.png</file>
+        <file alias="toolbar/zoom_fit">toolbar/zoom_fit.png</file>
+        <file alias="toolbar/fullscreen">toolbar/fullscreen.png</file>
+        <file alias="toolbar/settings">toolbar/settings.png</file>
+        
+        <!-- 菜单图标 -->
+        <file alias="menu/file">menu/file.png</file>
+        <file alias="menu/edit">menu/edit.png</file>
+        <file alias="menu/view">menu/view.png</file>
+        <file alias="menu/tools">menu/tools.png</file>
+        <file alias="menu/help">menu/help.png</file>
+        
+        <!-- 图书馆图标 -->
+        <file alias="library/folder">library/folder.png</file>
+        <file alias="library/comic">library/comic.png</file>
+        <file alias="library/favorite">library/favorite.png</file>
+        <file alias="library/recent">library/recent.png</file>
+        <file alias="library/search">library/search.png</file>
+        
+        <!-- 状态图标 -->
+        <file alias="status/loading">status/loading.png</file>
+        <file alias="status/error">status/error.png</file>
+        <file alias="status/success">status/success.png</file>
+        <file alias="status/warning">status/warning.png</file>
+    </qresource>
+</RCC>

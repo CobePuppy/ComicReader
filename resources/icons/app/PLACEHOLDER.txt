@@ -1,0 +1,12 @@
+# 占位图标文件
+# 此文件作为占位符，实际使用时需要替换为真实的PNG图标文件
+
+# 获取图标的建议方式：
+# 1. 使用 Material Design Icons: https://materialdesignicons.com/
+# 2. 使用 Feather Icons: https://feathericons.com/
+# 3. 使用 Heroicons: https://heroicons.com/
+# 4. 使用在线图标生成器创建自定义图标
+
+# 应用图标规格: 16x16, 32x32, 48x48, 64x64, 128x128, 256x256 像素
+# 建议使用蓝色主色调 (#2196F5) 和橙色辅助色 (#FF9800)
+# 可以设计为书本或漫画造型，体现阅读应用特色

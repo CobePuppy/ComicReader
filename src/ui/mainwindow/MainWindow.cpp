@@ -132,8 +132,18 @@ void MainWindow::openFile()
         tr("漫画文件 (*.cbz *.cbr *.zip *.rar);;所有文件 (*.*)"));
     
     if (!fileName.isEmpty()) {
-        // TODO: 实现文件打开逻辑
-        statusBar()->showMessage(tr("打开文件: %1").arg(fileName), 2000);
+        // 切换到阅读器界面
+        centralStack->setCurrentWidget(readerWidget);
+        
+        // 打开漫画文件
+        readerWidget->openComic(fileName);
+        
+        // 更新状态栏
+        QFileInfo fileInfo(fileName);
+        statusBar()->showMessage(tr("已打开: %1").arg(fileInfo.fileName()));
+        
+        // 更新窗口标题
+        setWindowTitle(tr("ComicReader - %1").arg(fileInfo.baseName()));
     }
 }
 

@@ -39,6 +39,7 @@ SOURCES += \
     src/ui/settings/SettingsWidget.cpp \
     src/core/network/NetworkManager.cpp \
     src/core/config/ConfigManager.cpp \
+    src/core/parser/ComicParser.cpp \
     src/utils/FileUtils.cpp
 
 # 头文件
@@ -50,10 +51,13 @@ HEADERS += \
     include/ui/SettingsWidget.h \
     include/core/NetworkManager.h \
     include/core/ConfigManager.h \
+    include/core/ComicParser.h \
     include/utils/FileUtils.h
 
 # 资源文件
-RESOURCES += resources/resources.qrc
+RESOURCES += \
+    resources/resources.qrc \
+    resources/icons.qrc
 
 # Windows 特定设置
 win32 {

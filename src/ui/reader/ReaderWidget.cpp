@@ -1,4 +1,5 @@
 #include "../../include/ui/ReaderWidget.h"
+#include "../../include/core/ComicParser.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QToolBar>
@@ -9,13 +10,36 @@
 #include <QScrollArea>
 #include <QPixmap>
 #include <QFileInfo>
+#include <QMessageBox>
+#include <QProgressDialog>
+#include <QApplication>
 
 ReaderWidget::ReaderWidget(QWidget *parent)
     : QWidget(parent)
+    , comicParser(new ComicParser(this))
     , currentPage(0)
     , zoomFactor(1.0)
 {
     setupUI();
+    
+    // 连接解析器信号
+    connect(comicParser, &ComicParser::parseCompleted, this, [this](bool success) {
+        if (success) {
+            const auto& info = comicParser->getComicInfo();
+            pageSpinBox->setMaximum(info.pageCount);
+            pageLabel->setText(QString("/ %1").arg(info.pageCount));
+            if (info.pageCount > 0) {
+                currentPage = 0;
+                updatePageDisplay();
+            }
+        } else {
+            QMessageBox::warning(this, "错误", "无法解析漫画文件");
+        }
+    });
+    
+    connect(comicParser, &ComicParser::error, this, [this](const QString& error) {
+        QMessageBox::critical(this, "解析错误", error);
+    });
 }
 
 void ReaderWidget::setupUI()
@@ -82,25 +106,31 @@ void ReaderWidget::setupUI()
 
 void ReaderWidget::openComic(const QString &filePath)
 {
-    // TODO: 实现漫画文件解析逻辑
-    // 这里应该根据文件类型(.cbz, .cbr等)解析文件内容
-    Q_UNUSED(filePath)
+    // 显示进度对话框
+    QProgressDialog *progressDialog = new QProgressDialog("正在解析漫画文件...", "取消", 0, 100, this);
+    progressDialog->setWindowModality(Qt::WindowModal);
+    progressDialog->show();
     
-    // 模拟数据
-    pages.clear();
-    pages << "page1.jpg" << "page2.jpg" << "page3.jpg";
+    connect(comicParser, &ComicParser::parseProgress, progressDialog, [progressDialog](int current, int total) {
+        if (total > 0) {
+            progressDialog->setValue((current * 100) / total);
+        }
+    });
     
-    if (!pages.isEmpty()) {
-        pageSpinBox->setMaximum(pages.size());
-        pageLabel->setText(QString("/ %1").arg(pages.size()));
-        currentPage = 0;
-        updatePageDisplay();
-    }
+    connect(comicParser, &ComicParser::parseCompleted, progressDialog, [progressDialog](bool success) {
+        progressDialog->setValue(100);
+        progressDialog->close();
+        progressDialog->deleteLater();
+    });
+    
+    // 解析漫画文件
+    comicParser->parseComic(filePath);
 }
 
 void ReaderWidget::nextPage()
 {
-    if (currentPage < pages.size() - 1) {
+    const auto& info = comicParser->getComicInfo();
+    if (currentPage < info.pageCount - 1) {
         currentPage++;
         updatePageDisplay();
     }
@@ -116,7 +146,8 @@ void ReaderWidget::previousPage()
 
 void ReaderWidget::goToPage(int page)
 {
-    if (page >= 1 && page <= pages.size()) {
+    const auto& info = comicParser->getComicInfo();
+    if (page >= 1 && page <= info.pageCount) {
         currentPage = page - 1;
         updatePageDisplay();
     }
@@ -141,12 +172,26 @@ void ReaderWidget::resetZoom()
 
 void ReaderWidget::fitToWidth()
 {
-    // TODO: 实现适应宽度逻辑
+    if (!originalPixmap.isNull()) {
+        int targetWidth = scrollArea->viewport()->width() - 20; // 留一些边距
+        if (targetWidth > 0) {
+            double ratio = double(targetWidth) / originalPixmap.width();
+            int newValue = qRound(ratio * 100);
+            zoomSlider->setValue(qBound(10, newValue, 500));
+        }
+    }
 }
 
 void ReaderWidget::fitToHeight()
 {
-    // TODO: 实现适应高度逻辑
+    if (!originalPixmap.isNull()) {
+        int targetHeight = scrollArea->viewport()->height() - 20; // 留一些边距
+        if (targetHeight > 0) {
+            double ratio = double(targetHeight) / originalPixmap.height();
+            int newValue = qRound(ratio * 100);
+            zoomSlider->setValue(qBound(10, newValue, 500));
+        }
+    }
 }
 
 void ReaderWidget::onPageChanged()
@@ -163,21 +208,43 @@ void ReaderWidget::onZoomChanged(int value)
 
 void ReaderWidget::updatePageDisplay()
 {
-    if (currentPage >= 0 && currentPage < pages.size()) {
-        // TODO: 加载并显示当前页面图像
-        imageLabel->setText(QString("当前页面: %1").arg(pages[currentPage]));
+    const auto& info = comicParser->getComicInfo();
+    if (currentPage >= 0 && currentPage < info.pageCount) {
+        // 显示加载提示
+        imageLabel->setText("加载中...");
+        QApplication::processEvents();
+        
+        // 加载当前页面图像
+        QPixmap pixmap = comicParser->getPagePixmap(currentPage);
+        if (!pixmap.isNull()) {
+            originalPixmap = pixmap;
+            currentPixmap = pixmap;
+            updateZoomDisplay();
+        } else {
+            imageLabel->setText(QString("无法加载页面 %1").arg(currentPage + 1));
+        }
+        
         onPageChanged();
     }
 }
 
 void ReaderWidget::updateZoomDisplay()
 {
-    if (!currentPixmap.isNull()) {
-        QPixmap scaledPixmap = currentPixmap.scaled(
-            currentPixmap.size() * zoomFactor,
-            Qt::KeepAspectRatio,
-            Qt::SmoothTransformation
-        );
-        imageLabel->setPixmap(scaledPixmap);
+    if (!originalPixmap.isNull()) {
+        if (qAbs(zoomFactor - 1.0) < 0.01) {
+            // 原始大小，直接使用原图
+            currentPixmap = originalPixmap;
+        } else {
+            // 缩放图像
+            QSize newSize = originalPixmap.size() * zoomFactor;
+            currentPixmap = originalPixmap.scaled(
+                newSize,
+                Qt::KeepAspectRatio,
+                Qt::SmoothTransformation
+            );
+        }
+        
+        imageLabel->setPixmap(currentPixmap);
+        imageLabel->resize(currentPixmap.size());
     }
 }

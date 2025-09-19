@@ -6,9 +6,9 @@
 #include <QStringList>
 #include <QPixmap>
 #include <QByteArray>
+#include <QProcess>
 
 class QZipReader;
-class QProcess;
 
 /**
  * @brief 漫画文件解析器

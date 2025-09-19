@@ -1,0 +1,15 @@
+../build/tests/debug/obj/main.o
+../build/tests/debug/obj/TestCacheManager.o
+../build/tests/debug/obj/TestBookmarkManager.o
+../build/tests/debug/obj/TestErrorHandler.o
+../build/tests/debug/obj/TestConfigManager.o
+../build/tests/debug/obj/CacheManager.o
+../build/tests/debug/obj/BookmarkManager.o
+../build/tests/debug/obj/ErrorHandler.o
+../build/tests/debug/obj/ConfigManager.o
+../build/tests/debug/obj/moc_TestCacheManager.o
+../build/tests/debug/obj/moc_TestBookmarkManager.o
+../build/tests/debug/obj/moc_CacheManager.o
+../build/tests/debug/obj/moc_BookmarkManager.o
+../build/tests/debug/obj/moc_ErrorHandler.o
+../build/tests/debug/obj/moc_ConfigManager.o

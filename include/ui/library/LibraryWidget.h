@@ -15,6 +15,7 @@
 #include <QMenu>
 #include <QTimer>
 #include <QFileSystemWatcher>
+#include <QDateTime>
 
 class ComicLibraryModel;
 class ComicItemDelegate;
@@ -196,7 +197,7 @@ private:
     QFileSystemWatcher *m_fileWatcher;
     QTimer *m_scanTimer;
     bool m_isScanning;
-    int m_scanProgress;
+    int m_scanCurrentItem;
     int m_scanTotal;
     
     // 缓存和性能

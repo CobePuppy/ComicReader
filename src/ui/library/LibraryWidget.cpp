@@ -54,7 +54,7 @@ LibraryWidget::LibraryWidget(QWidget *parent)
     , m_fileWatcher(new QFileSystemWatcher(this))
     , m_scanTimer(new QTimer(this))
     , m_isScanning(false)
-    , m_scanProgress(0)
+    , m_scanCurrentItem(0)
     , m_scanTotal(0)
     , m_searchTimer(new QTimer(this))
     , m_maxThumbnailCacheSize(100)
@@ -369,7 +369,7 @@ void LibraryWidget::addComicsFromDirectory(const QString &dirPath, bool recursiv
     }
     
     m_isScanning = true;
-    m_scanProgress = 0;
+    m_scanCurrentItem = 0;
     m_scanTotal = 0;
     
     // 显示进度条
@@ -825,8 +825,8 @@ void LibraryWidget::updateStatusBar()
     int filteredComics = m_filteredComics.size();
     
     if (m_isScanning) {
-        m_statusLabel->setText(QString("正在扫描... (%1/%2)").arg(m_scanProgress).arg(m_scanTotal));
-        m_scanProgress->setValue(m_scanProgress);
+        m_statusLabel->setText(QString("正在扫描... (%1/%2)").arg(m_scanCurrentItem).arg(m_scanTotal));
+        m_scanProgress->setValue(m_scanCurrentItem);
         m_scanProgress->setMaximum(m_scanTotal);
     } else {
         m_statusLabel->setText("就绪");
@@ -1012,8 +1012,8 @@ void LibraryWidget::scanDirectory(const QString &dirPath, bool recursive)
         if (!m_comicDatabase.contains(filePath)) {
             addComicToLibrary(filePath);
         }
-        m_scanProgress++;
-        emit scanProgress(m_scanProgress, m_scanTotal);
+        m_scanCurrentItem++;
+        emit scanProgress(m_scanCurrentItem, m_scanTotal);
     }
     
     if (recursive) {

@@ -9,14 +9,6 @@ qtHaveModule(webenginewidgets) {
 } else {
     message("WebEngine not available, using simplified browser")
     DEFINES += NO_WEBENGINE
-}e widgets network webenginewidgets webenginecore
-
-CONFIG += c++17
-
-# 检查 WebEngine 是否可用
-!qtHaveModule(webenginewidgets) {
-    message("WebEngine not available, using QTextBrowser instead")
-    DEFINES += NO_WEBENGINE
 }
 
 TARGET = ComicReader
@@ -33,35 +25,25 @@ INCLUDEPATH += include/
 SOURCES += \
     src/main.cpp \
     src/ui/mainwindow/MainWindow.cpp \
-    src/ui/reader/ReaderWidget.cpp \
-    src/ui/browser/BrowserWidget.cpp \
-    src/ui/downloadmanager/DownloadManagerWidget.cpp \
-    src/ui/settings/SettingsWidget.cpp \
-    src/core/network/NetworkManager.cpp \
     src/core/config/ConfigManager.cpp \
-    src/core/parser/ComicParser.cpp \
-    src/utils/FileUtils.cpp
+    src/core/utils/FileUtils.cpp \
+    src/core/parsers/ComicParser.cpp
 
 # 头文件
 HEADERS += \
     include/ui/MainWindow.h \
-    include/ui/ReaderWidget.h \
-    include/ui/BrowserWidget.h \
-    include/ui/DownloadManagerWidget.h \
-    include/ui/SettingsWidget.h \
-    include/core/NetworkManager.h \
-    include/core/ConfigManager.h \
-    include/core/ComicParser.h \
-    include/utils/FileUtils.h
+    include/core/config/ConfigManager.h \
+    include/core/utils/FileUtils.h \
+    include/core/parsers/ComicParser.h
 
-# 资源文件
-RESOURCES += \
-    resources/resources.qrc \
-    resources/icons.qrc
+# 资源文件（暂时注释掉）
+# RESOURCES += \
+#     resources/resources.qrc \
+#     resources/icons.qrc
 
 # Windows 特定设置
 win32 {
-    RC_ICONS = resources/icons/app.ico
+    # RC_ICONS = resources/icons/app.ico
     QMAKE_TARGET_COMPANY = "ComicReader Team"
     QMAKE_TARGET_DESCRIPTION = "ComicReader - A Powerful Comic Reader"
     QMAKE_TARGET_COPYRIGHT = "Copyright (c) 2025 ComicReader Team"
@@ -83,7 +65,7 @@ unix:!macx {
     desktop.path = /usr/share/applications
     INSTALLS += desktop
     
-    icon.files = resources/icons/app.png
+    # icon.files = resources/icons/app.png
     icon.path = /usr/share/pixmaps
     INSTALLS += icon
 }

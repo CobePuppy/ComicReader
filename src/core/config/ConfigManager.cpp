@@ -1,11 +1,30 @@
-#include "../../include/core/ConfigManager.h"
+#include "core/config/ConfigManager.h"
+#include <QApplication>
 #include <QStandardPaths>
 #include <QDir>
+#include <QMutex>
+#include <QMutexLocker>
 
+// 静态成员定义
 ConfigManager* ConfigManager::m_instance = nullptr;
+
+// 默认值定义
+const QSize ConfigManager::DEFAULT_WINDOW_SIZE = QSize(1200, 800);
+const QPoint ConfigManager::DEFAULT_WINDOW_POSITION = QPoint(100, 100);
+const int ConfigManager::DEFAULT_PAGE_FIT_MODE = 0; // 适应窗口
+const double ConfigManager::DEFAULT_ZOOM_LEVEL = 1.0;
+const int ConfigManager::DEFAULT_READING_DIRECTION = 0; // 从左到右
+const QString ConfigManager::DEFAULT_LANGUAGE = "zh_CN";
+const QString ConfigManager::DEFAULT_THEME = "default";
+const int ConfigManager::DEFAULT_MAX_CACHE_SIZE = 500; // MB
+const int ConfigManager::DEFAULT_PRELOAD_COUNT = 3;
+const int ConfigManager::MAX_RECENT_FILES = 10;
 
 ConfigManager* ConfigManager::instance()
 {
+    static QMutex mutex;
+    QMutexLocker locker(&mutex);
+    
     if (!m_instance) {
         m_instance = new ConfigManager();
     }
@@ -14,14 +33,267 @@ ConfigManager* ConfigManager::instance()
 
 ConfigManager::ConfigManager(QObject *parent)
     : QObject(parent)
-    , m_settings(new QSettings("ComicReader", "ComicReader", this))
+    , m_settings(nullptr)
 {
-    loadConfig();
+    // 创建配置文件路径
+    QString configPath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+    QDir().mkpath(configPath);
+    
+    // 初始化QSettings
+    m_settings = new QSettings(configPath + "/config.ini", QSettings::IniFormat, this);
+    
+    initDefaults();
+    loadSettings();
 }
 
 ConfigManager::~ConfigManager()
 {
-    saveConfig();
+    saveSettings();
+}
+
+void ConfigManager::initDefaults()
+{
+    // 如果是第一次运行，设置默认值
+    if (m_settings->allKeys().isEmpty()) {
+        setWindowSize(DEFAULT_WINDOW_SIZE);
+        setWindowPosition(DEFAULT_WINDOW_POSITION);
+        setMaximized(false);
+        setFullscreen(false);
+        
+        setPageFitMode(DEFAULT_PAGE_FIT_MODE);
+        setZoomLevel(DEFAULT_ZOOM_LEVEL);
+        setReadingDirection(DEFAULT_READING_DIRECTION);
+        setDoublePageMode(false);
+        
+        setLanguage(DEFAULT_LANGUAGE);
+        setTheme(DEFAULT_THEME);
+        
+        // 设置默认缓存目录
+        QString defaultCacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+        setCacheDirectory(defaultCacheDir);
+        setMaxCacheSize(DEFAULT_MAX_CACHE_SIZE);
+        setPreloadEnabled(true);
+        setPreloadCount(DEFAULT_PRELOAD_COUNT);
+        
+        sync();
+    }
+}
+
+void ConfigManager::loadSettings()
+{
+    // 配置已经通过QSettings自动加载
+}
+
+void ConfigManager::saveSettings()
+{
+    if (m_settings) {
+        m_settings->sync();
+    }
+}
+
+// 窗口设置
+QSize ConfigManager::getWindowSize() const
+{
+    return m_settings->value("Window/Size", DEFAULT_WINDOW_SIZE).toSize();
+}
+
+void ConfigManager::setWindowSize(const QSize &size)
+{
+    m_settings->setValue("Window/Size", size);
+    emit configChanged("Window/Size", size);
+}
+
+QPoint ConfigManager::getWindowPosition() const
+{
+    return m_settings->value("Window/Position", DEFAULT_WINDOW_POSITION).toPoint();
+}
+
+void ConfigManager::setWindowPosition(const QPoint &position)
+{
+    m_settings->setValue("Window/Position", position);
+    emit configChanged("Window/Position", position);
+}
+
+bool ConfigManager::isMaximized() const
+{
+    return m_settings->value("Window/Maximized", false).toBool();
+}
+
+void ConfigManager::setMaximized(bool maximized)
+{
+    m_settings->setValue("Window/Maximized", maximized);
+    emit configChanged("Window/Maximized", maximized);
+}
+
+bool ConfigManager::isFullscreen() const
+{
+    return m_settings->value("Window/Fullscreen", false).toBool();
+}
+
+void ConfigManager::setFullscreen(bool fullscreen)
+{
+    m_settings->setValue("Window/Fullscreen", fullscreen);
+    emit configChanged("Window/Fullscreen", fullscreen);
+}
+
+// 阅读设置
+int ConfigManager::getPageFitMode() const
+{
+    return m_settings->value("Reading/PageFitMode", DEFAULT_PAGE_FIT_MODE).toInt();
+}
+
+void ConfigManager::setPageFitMode(int mode)
+{
+    m_settings->setValue("Reading/PageFitMode", mode);
+    emit configChanged("Reading/PageFitMode", mode);
+}
+
+double ConfigManager::getZoomLevel() const
+{
+    return m_settings->value("Reading/ZoomLevel", DEFAULT_ZOOM_LEVEL).toDouble();
+}
+
+void ConfigManager::setZoomLevel(double level)
+{
+    m_settings->setValue("Reading/ZoomLevel", level);
+    emit configChanged("Reading/ZoomLevel", level);
+}
+
+int ConfigManager::getReadingDirection() const
+{
+    return m_settings->value("Reading/Direction", DEFAULT_READING_DIRECTION).toInt();
+}
+
+void ConfigManager::setReadingDirection(int direction)
+{
+    m_settings->setValue("Reading/Direction", direction);
+    emit configChanged("Reading/Direction", direction);
+}
+
+bool ConfigManager::isDoublePageMode() const
+{
+    return m_settings->value("Reading/DoublePageMode", false).toBool();
+}
+
+void ConfigManager::setDoublePageMode(bool enabled)
+{
+    m_settings->setValue("Reading/DoublePageMode", enabled);
+    emit configChanged("Reading/DoublePageMode", enabled);
+}
+
+// 应用设置
+QString ConfigManager::getLanguage() const
+{
+    return m_settings->value("Application/Language", DEFAULT_LANGUAGE).toString();
+}
+
+void ConfigManager::setLanguage(const QString &language)
+{
+    m_settings->setValue("Application/Language", language);
+    emit configChanged("Application/Language", language);
+    emit languageChanged(language);
+}
+
+QString ConfigManager::getTheme() const
+{
+    return m_settings->value("Application/Theme", DEFAULT_THEME).toString();
+}
+
+void ConfigManager::setTheme(const QString &theme)
+{
+    m_settings->setValue("Application/Theme", theme);
+    emit configChanged("Application/Theme", theme);
+    emit themeChanged(theme);
+}
+
+QStringList ConfigManager::getRecentFiles() const
+{
+    return m_settings->value("Application/RecentFiles").toStringList();
+}
+
+void ConfigManager::addRecentFile(const QString &filePath)
+{
+    QStringList recent = getRecentFiles();
+    
+    // 移除已存在的文件路径
+    recent.removeAll(filePath);
+    
+    // 添加到列表开头
+    recent.prepend(filePath);
+    
+    // 限制最大数量
+    while (recent.size() > MAX_RECENT_FILES) {
+        recent.removeLast();
+    }
+    
+    m_settings->setValue("Application/RecentFiles", recent);
+    emit configChanged("Application/RecentFiles", recent);
+}
+
+void ConfigManager::removeRecentFile(const QString &filePath)
+{
+    QStringList recent = getRecentFiles();
+    recent.removeAll(filePath);
+    m_settings->setValue("Application/RecentFiles", recent);
+    emit configChanged("Application/RecentFiles", recent);
+}
+
+void ConfigManager::clearRecentFiles()
+{
+    m_settings->setValue("Application/RecentFiles", QStringList());
+    emit configChanged("Application/RecentFiles", QStringList());
+}
+
+// 缓存设置
+QString ConfigManager::getCacheDirectory() const
+{
+    QString defaultDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+    return m_settings->value("Cache/Directory", defaultDir).toString();
+}
+
+void ConfigManager::setCacheDirectory(const QString &path)
+{
+    m_settings->setValue("Cache/Directory", path);
+    emit configChanged("Cache/Directory", path);
+}
+
+int ConfigManager::getMaxCacheSize() const
+{
+    return m_settings->value("Cache/MaxSize", DEFAULT_MAX_CACHE_SIZE).toInt();
+}
+
+void ConfigManager::setMaxCacheSize(int sizeInMB)
+{
+    m_settings->setValue("Cache/MaxSize", sizeInMB);
+    emit configChanged("Cache/MaxSize", sizeInMB);
+}
+
+bool ConfigManager::isPreloadEnabled() const
+{
+    return m_settings->value("Cache/PreloadEnabled", true).toBool();
+}
+
+void ConfigManager::setPreloadEnabled(bool enabled)
+{
+    m_settings->setValue("Cache/PreloadEnabled", enabled);
+    emit configChanged("Cache/PreloadEnabled", enabled);
+}
+
+int ConfigManager::getPreloadCount() const
+{
+    return m_settings->value("Cache/PreloadCount", DEFAULT_PRELOAD_COUNT).toInt();
+}
+
+void ConfigManager::setPreloadCount(int count)
+{
+    m_settings->setValue("Cache/PreloadCount", count);
+    emit configChanged("Cache/PreloadCount", count);
+}
+
+// 通用方法
+QVariant ConfigManager::getValue(const QString &key, const QVariant &defaultValue) const
+{
+    return m_settings->value(key, defaultValue);
 }
 
 void ConfigManager::setValue(const QString &key, const QVariant &value)
@@ -30,212 +302,14 @@ void ConfigManager::setValue(const QString &key, const QVariant &value)
     emit configChanged(key, value);
 }
 
-QVariant ConfigManager::getValue(const QString &key, const QVariant &defaultValue) const
-{
-    return m_settings->value(key, defaultValue);
-}
-
-QString ConfigManager::getDownloadPath() const
-{
-    return getValue("Download/Path", 
-        QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/ComicReader").toString();
-}
-
-void ConfigManager::setDownloadPath(const QString &path)
-{
-    setValue("Download/Path", path);
-}
-
-QString ConfigManager::getCachePath() const
-{
-    return getValue("Cache/Path", 
-        QStandardPaths::writableLocation(QStandardPaths::CacheLocation)).toString();
-}
-
-void ConfigManager::setCachePath(const QString &path)
-{
-    setValue("Cache/Path", path);
-}
-
-int ConfigManager::getMaxDownloads() const
-{
-    return getValue("Download/MaxConcurrent", 3).toInt();
-}
-
-void ConfigManager::setMaxDownloads(int count)
-{
-    setValue("Download/MaxConcurrent", count);
-}
-
-int ConfigManager::getMaxDownloadSpeed() const
-{
-    return getValue("Download/MaxSpeed", 0).toInt();
-}
-
-void ConfigManager::setMaxDownloadSpeed(int speed)
-{
-    setValue("Download/MaxSpeed", speed);
-}
-
-QString ConfigManager::getUserAgent() const
-{
-    return getValue("Network/UserAgent", "ComicReader/1.0").toString();
-}
-
-void ConfigManager::setUserAgent(const QString &userAgent)
-{
-    setValue("Network/UserAgent", userAgent);
-}
-
-int ConfigManager::getTimeout() const
-{
-    return getValue("Network/Timeout", 30).toInt();
-}
-
-void ConfigManager::setTimeout(int timeout)
-{
-    setValue("Network/Timeout", timeout);
-}
-
-bool ConfigManager::isAutoStart() const
-{
-    return getValue("General/AutoStart", false).toBool();
-}
-
-void ConfigManager::setAutoStart(bool enabled)
-{
-    setValue("General/AutoStart", enabled);
-}
-
-QString ConfigManager::getTheme() const
-{
-    return getValue("General/Theme", "default").toString();
-}
-
-void ConfigManager::setTheme(const QString &theme)
-{
-    setValue("General/Theme", theme);
-}
-
-QString ConfigManager::getLanguage() const
-{
-    return getValue("General/Language", "zh_CN").toString();
-}
-
-void ConfigManager::setLanguage(const QString &language)
-{
-    setValue("General/Language", language);
-}
-
-bool ConfigManager::isProxyEnabled() const
-{
-    return getValue("Network/ProxyEnabled", false).toBool();
-}
-
-void ConfigManager::setProxyEnabled(bool enabled)
-{
-    setValue("Network/ProxyEnabled", enabled);
-}
-
-QString ConfigManager::getProxyHost() const
-{
-    return getValue("Network/ProxyHost", "").toString();
-}
-
-void ConfigManager::setProxyHost(const QString &host)
-{
-    setValue("Network/ProxyHost", host);
-}
-
-int ConfigManager::getProxyPort() const
-{
-    return getValue("Network/ProxyPort", 8080).toInt();
-}
-
-void ConfigManager::setProxyPort(int port)
-{
-    setValue("Network/ProxyPort", port);
-}
-
-bool ConfigManager::isFullscreenOnStart() const
-{
-    return getValue("Reader/FullscreenOnStart", false).toBool();
-}
-
-void ConfigManager::setFullscreenOnStart(bool enabled)
-{
-    setValue("Reader/FullscreenOnStart", enabled);
-}
-
-QString ConfigManager::getPageLayout() const
-{
-    return getValue("Reader/PageLayout", "single").toString();
-}
-
-void ConfigManager::setPageLayout(const QString &layout)
-{
-    setValue("Reader/PageLayout", layout);
-}
-
-QString ConfigManager::getScalingMode() const
-{
-    return getValue("Reader/ScalingMode", "fit_window").toString();
-}
-
-void ConfigManager::setScalingMode(const QString &mode)
-{
-    setValue("Reader/ScalingMode", mode);
-}
-
-int ConfigManager::getDefaultZoom() const
-{
-    return getValue("Reader/DefaultZoom", 100).toInt();
-}
-
-void ConfigManager::setDefaultZoom(int zoom)
-{
-    setValue("Reader/DefaultZoom", zoom);
-}
-
-void ConfigManager::saveConfig()
-{
-    m_settings->sync();
-}
-
-void ConfigManager::loadConfig()
-{
-    // 确保配置目录存在
-    QString downloadPath = getDownloadPath();
-    QDir().mkpath(downloadPath);
-    
-    QString cachePath = getCachePath();
-    QDir().mkpath(cachePath);
-}
-
 void ConfigManager::resetToDefaults()
 {
     m_settings->clear();
-    setDefaultValues();
-    loadConfig();
+    initDefaults();
+    emit configChanged("", QVariant()); // 通知所有配置已重置
 }
 
-void ConfigManager::setDefaultValues()
+void ConfigManager::sync()
 {
-    // 设置默认值
-    setDownloadPath(QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/ComicReader");
-    setCachePath(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
-    setMaxDownloads(3);
-    setMaxDownloadSpeed(0);
-    setUserAgent("ComicReader/1.0");
-    setTimeout(30);
-    setAutoStart(false);
-    setTheme("default");
-    setLanguage("zh_CN");
-    setProxyEnabled(false);
-    setProxyHost("");
-    setProxyPort(8080);
-    setFullscreenOnStart(false);
-    setPageLayout("single");
-    setScalingMode("fit_window");
-    setDefaultZoom(100);
+    m_settings->sync();
 }

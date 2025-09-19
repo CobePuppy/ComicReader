@@ -1,5 +1,6 @@
 #include "../../include/core/ComicParser.h"
 #include "../../include/utils/FileUtils.h"
+#include "../../include/utils/error/ErrorHandler.h"
 #include <QFileInfo>
 #include <QDir>
 #include <QTemporaryDir>
@@ -35,14 +36,20 @@ bool ComicParser::parseComic(const QString &filePath)
     
     QFileInfo fileInfo(filePath);
     if (!fileInfo.exists()) {
-        emit error(tr("文件不存在: %1").arg(filePath));
+        QString errorMsg = tr("文件不存在: %1").arg(filePath);
+        REPORT_ERROR_WITH_CONTEXT(ErrorCategory::FileIO, "FILE_NOT_FOUND", 
+                                  "文件不存在", errorMsg, filePath);
+        emit error(errorMsg);
         return false;
     }
     
     // 检测文件格式
     ComicFormat format = detectFormat(filePath);
     if (format == Unknown) {
-        emit error(tr("不支持的文件格式: %1").arg(filePath));
+        QString errorMsg = tr("不支持的文件格式: %1").arg(filePath);
+        REPORT_ERROR_WITH_CONTEXT(ErrorCategory::Parsing, "UNSUPPORTED_FORMAT", 
+                                  "不支持的文件格式", errorMsg, filePath);
+        emit error(errorMsg);
         return false;
     }
     
@@ -90,7 +97,10 @@ bool ComicParser::parseZipFile(const QString &filePath)
         m_zipReader = new QZipReader(filePath);
         
         if (!m_zipReader->isReadable()) {
-            emit error(tr("无法读取ZIP文件: %1").arg(filePath));
+            QString errorMsg = tr("无法读取ZIP文件: %1").arg(filePath);
+            REPORT_ERROR_WITH_CONTEXT(ErrorCategory::FileIO, "ZIP_READ_ERROR", 
+                                      "ZIP文件读取失败", errorMsg, filePath);
+            emit error(errorMsg);
             return false;
         }
         
@@ -104,7 +114,10 @@ bool ComicParser::parseZipFile(const QString &filePath)
         }
         
         if (fileList.isEmpty()) {
-            emit error(tr("ZIP文件中未找到图片文件"));
+            QString errorMsg = tr("ZIP文件中未找到图片文件");
+            REPORT_ERROR_WITH_CONTEXT(ErrorCategory::Parsing, "NO_IMAGES_FOUND", 
+                                      "未找到图片文件", errorMsg, filePath);
+            emit error(errorMsg);
             return false;
         }
         
